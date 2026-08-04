@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1113">
+  <meta name="description" content="用手机动作理解泵动式霰弹枪工作循环的互动教育演示。">
+  <title>霰弹枪动作实验室 · Shotgun Motion Lab</title>
+  <style>
+    :root {
+      --font-size-base: 16px;
+      color-scheme: dark;
+      background: #080b0d;
+    }
+
+    html { min-width: 320px; background: #080b0d; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: clamp(12px, 2.4vw, 36px);
+      background:
+        radial-gradient(circle at 22% 12%, rgba(46, 196, 182, .09), transparent 32rem),
+        radial-gradient(circle at 82% 88%, rgba(255, 107, 44, .07), transparent 30rem),
+        #080b0d;
+    }
+
+    .site-shell {
+      width: min(1520px, 100%);
+      margin: 0 auto;
+    }
+
+    .site-note {
+      margin: 14px auto 0;
+      color: #8f9794;
+      font: 12px/1.6 "IBM Plex Sans SC", "Noto Sans SC", system-ui, sans-serif;
+      text-align: center;
+    }
+
+    #pump-cycle-prototype .pc-enable svg,
+    #pump-cycle-prototype .pc-feedback-strip svg {
+      width: 1em;
+      height: 1em;
+      flex: 0 0 auto;
+      stroke: currentColor;
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 0; }
+      .site-note { padding: 0 18px 18px; }
+      #pump-cycle-prototype .pc-device { border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+<main class="site-shell">
+<style>
+  #pump-cycle-prototype {
+    --pc-charcoal: light-dark(#14181b, #0d1113);
+    --pc-panel: light-dark(#20262a, #171c1f);
+    --pc-panel-2: light-dark(#2a3135, #202629);
+    --pc-ivory: #efe8d8;
+    --pc-muted: #a8ada8;
+    --pc-orange: #ff6b2c;
+    --pc-teal: #2ec4b6;
+    --pc-steel: #8a949a;
+    --pc-walnut: light-dark(#99633b, #7e4d2a);
+    --pc-walnut-dark: light-dark(#59351f, #422818);
+    --pc-gunmetal: light-dark(#4b555b, #30383d);
+    --pc-line: color-mix(in srgb, var(--pc-ivory) 18%, transparent);
+    color-scheme: light dark;
+    width: 100%;
+    color: var(--pc-ivory);
+    font-family: "IBM Plex Sans SC", "Noto Sans SC", sans-serif;
+    font-size: var(--font-size-base);
+  }
+
+  #pump-cycle-prototype * { box-sizing: border-box; }
+
+  #pump-cycle-prototype button,
+  #pump-cycle-prototype input { font: inherit; }
+
+  #pump-cycle-prototype .pc-device {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 430px;
+    overflow: hidden;
+    border: 1px solid var(--pc-line);
+    border-radius: 28px;
+    background:
+      linear-gradient(90deg, transparent 49.8%, color-mix(in srgb, var(--pc-ivory) 4%, transparent) 50%, transparent 50.2%),
+      radial-gradient(circle at 42% 46%, color-mix(in srgb, var(--pc-teal) 8%, transparent), transparent 32%),
+      var(--pc-charcoal);
+    box-shadow: 0 20px 48px color-mix(in srgb, #000 34%, transparent);
+  }
+
+  #pump-cycle-prototype .pc-device::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .28;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  #pump-cycle-prototype .pc-chrome {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 58px;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--pc-line);
+    background: color-mix(in srgb, var(--pc-charcoal) 92%, transparent);
+  }
+
+  #pump-cycle-prototype .pc-brand {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    white-space: nowrap;
+    font-family: "Space Mono", monospace;
+    font-weight: 500;
+    letter-spacing: .08em;
+  }
+
+  #pump-cycle-prototype .pc-brand-mark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--pc-orange);
+    transform: rotate(45deg);
+  }
+
+  #pump-cycle-prototype .pc-tabs {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: .25rem;
+  }
+
+  #pump-cycle-prototype .pc-diagram-toggle {
+    display: flex;
+    padding: 3px;
+    border: 1px solid var(--pc-line);
+    border-radius: 999px;
+    background: var(--pc-panel);
+    white-space: nowrap;
+  }
+
+  #pump-cycle-prototype .pc-tab,
+  #pump-cycle-prototype .pc-diagram-button,
+  #pump-cycle-prototype .pc-action,
+  #pump-cycle-prototype .pc-cycle-step,
+  #pump-cycle-prototype .pc-enable {
+    border: 1px solid transparent;
+    color: var(--pc-muted);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  #pump-cycle-prototype .pc-tab {
+    padding: .45rem .7rem;
+    border-radius: 999px;
+  }
+
+  #pump-cycle-prototype .pc-tab[aria-pressed="true"] {
+    color: var(--pc-charcoal);
+    background: var(--pc-ivory);
+  }
+
+  #pump-cycle-prototype .pc-diagram-button {
+    padding: .3rem .6rem;
+    border-radius: 999px;
+  }
+
+  #pump-cycle-prototype .pc-diagram-button[aria-pressed="true"] {
+    color: var(--pc-charcoal);
+    background: var(--pc-teal);
+  }
+
+  #pump-cycle-prototype .pc-safety {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    white-space: nowrap;
+    color: var(--pc-teal);
+    font-family: "Space Mono", monospace;
+  }
+
+  #pump-cycle-prototype .pc-safety-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pc-teal);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--pc-teal) 15%, transparent);
+  }
+
+  #pump-cycle-prototype .pc-body {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 28%);
+    height: calc(100% - 58px);
+  }
+
+  #pump-cycle-prototype .pc-stage {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border-right: 1px solid var(--pc-line);
+  }
+
+  #pump-cycle-prototype .pc-stage-head {
+    position: absolute;
+    z-index: 3;
+    top: 1.2rem;
+    left: 1.35rem;
+    max-width: 62%;
+  }
+
+  #pump-cycle-prototype .pc-kicker {
+    margin: 0 0 .25rem;
+    color: var(--pc-orange);
+    font-family: "Space Mono", monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  #pump-cycle-prototype .pc-stage-head h2 {
+    margin: 0;
+    font-family: "DIN Condensed", "IBM Plex Sans SC", sans-serif;
+    font-weight: 500;
+  }
+
+  #pump-cycle-prototype .pc-stage-head p {
+    margin: .35rem 0 0;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-mechanism,
+  #pump-cycle-prototype .pc-appearance {
+    position: absolute;
+    inset: 20% 2% 11% 2%;
+    width: 96%;
+    height: 69%;
+  }
+
+  #pump-cycle-prototype .pc-appearance { display: none; }
+  #pump-cycle-prototype[data-diagram="appearance"] .pc-mechanism { display: none; }
+  #pump-cycle-prototype[data-diagram="appearance"] .pc-appearance { display: block; }
+
+  #pump-cycle-prototype .pc-appearance-gun,
+  #pump-cycle-prototype .pc-appearance-pump,
+  #pump-cycle-prototype .pc-appearance-bolt,
+  #pump-cycle-prototype .pc-appearance-shell {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 420ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease;
+  }
+
+  #pump-cycle-prototype .pc-appearance-body {
+    fill: color-mix(in srgb, var(--pc-panel-2) 82%, var(--pc-steel));
+    stroke: var(--pc-steel);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-wood {
+    fill: url(#pc-walnut-gradient);
+    stroke: var(--pc-walnut-dark);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-steel {
+    fill: url(#pc-steel-gradient);
+    stroke: color-mix(in srgb, var(--pc-steel) 72%, var(--pc-charcoal));
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-rubber {
+    fill: color-mix(in srgb, var(--pc-charcoal) 80%, var(--pc-steel));
+    stroke: var(--pc-steel);
+    stroke-width: 1.5;
+  }
+
+  #pump-cycle-prototype .pc-appearance-metal {
+    fill: color-mix(in srgb, var(--pc-charcoal) 80%, var(--pc-steel));
+    stroke: var(--pc-steel);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-accent {
+    fill: color-mix(in srgb, var(--pc-teal) 24%, var(--pc-panel));
+    stroke: var(--pc-teal);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-port {
+    fill: var(--pc-charcoal);
+    stroke: color-mix(in srgb, var(--pc-ivory) 36%, transparent);
+    stroke-width: 1.5;
+  }
+
+  #pump-cycle-prototype .pc-appearance-bolt {
+    fill: var(--pc-teal);
+    opacity: .86;
+  }
+
+  #pump-cycle-prototype .pc-appearance-grip-line {
+    fill: none;
+    stroke: color-mix(in srgb, var(--pc-ivory) 24%, transparent);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-appearance-shell {
+    opacity: 0;
+  }
+
+  #pump-cycle-prototype .pc-appearance-pulse {
+    fill: none;
+    stroke: var(--pc-orange);
+    stroke-width: 3;
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+
+  #pump-cycle-prototype .pc-appearance-labels { opacity: 0; transition: opacity 220ms ease; }
+  #pump-cycle-prototype[data-view="learn"][data-diagram="appearance"] .pc-appearance-labels { opacity: 1; }
+
+  #pump-cycle-prototype .pc-outline {
+    fill: color-mix(in srgb, var(--pc-panel-2) 76%, transparent);
+    stroke: var(--pc-steel);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-ghost {
+    fill: none;
+    stroke: color-mix(in srgb, var(--pc-ivory) 24%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 6;
+  }
+
+  #pump-cycle-prototype .pc-magazine {
+    fill: color-mix(in srgb, var(--pc-teal) 12%, var(--pc-panel));
+    stroke: var(--pc-teal);
+    stroke-width: 2;
+  }
+
+  #pump-cycle-prototype .pc-bolt {
+    fill: color-mix(in srgb, var(--pc-teal) 72%, var(--pc-panel));
+    stroke: var(--pc-teal);
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 420ms cubic-bezier(.2,.8,.2,1);
+  }
+
+  #pump-cycle-prototype .pc-carrier {
+    fill: color-mix(in srgb, var(--pc-steel) 74%, var(--pc-panel));
+    stroke: var(--pc-ivory);
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: right center;
+    transition: transform 420ms cubic-bezier(.2,.8,.2,1);
+  }
+
+  #pump-cycle-prototype .pc-shell-svg {
+    fill: var(--pc-orange);
+    stroke: color-mix(in srgb, var(--pc-orange) 70%, #000);
+    stroke-width: 1.5;
+    transition: transform 420ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease;
+  }
+
+  #pump-cycle-prototype .pc-shell-cap { fill: var(--pc-ivory); }
+
+  #pump-cycle-prototype .pc-label-line {
+    fill: none;
+    stroke: color-mix(in srgb, var(--pc-ivory) 48%, transparent);
+    stroke-width: 1;
+  }
+
+  #pump-cycle-prototype .pc-svg-label {
+    fill: var(--pc-ivory);
+    font-family: "IBM Plex Sans SC", sans-serif;
+    font-size: 14px;
+  }
+
+  #pump-cycle-prototype .pc-svg-code {
+    fill: var(--pc-muted);
+    font-family: "Space Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+  }
+
+  #pump-cycle-prototype .pc-motion-arrow {
+    fill: none;
+    stroke: var(--pc-orange);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 10 7;
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+
+  #pump-cycle-prototype[data-view="interactive"] .pc-motion-arrow,
+  #pump-cycle-prototype[data-view="cycle"] .pc-motion-arrow { opacity: 1; }
+
+  #pump-cycle-prototype .pc-tilt-grid {
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+
+  #pump-cycle-prototype[data-view="learn"] .pc-tilt-grid { opacity: .45; }
+
+  #pump-cycle-prototype .pc-readiness {
+    position: absolute;
+    z-index: 5;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    width: min(330px, calc(100% - 2.5rem));
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, var(--pc-teal) 45%, transparent);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--pc-panel) 96%, transparent);
+    box-shadow: 0 18px 40px color-mix(in srgb, #000 28%, transparent);
+  }
+
+  #pump-cycle-prototype:not([data-view="prepare"]) .pc-readiness { display: none; }
+
+  #pump-cycle-prototype .pc-readiness h3,
+  #pump-cycle-prototype .pc-readiness p { margin: 0; }
+
+  #pump-cycle-prototype .pc-readiness p {
+    margin-top: .4rem;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-enable {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    margin-top: .85rem;
+    padding: .6rem .85rem;
+    border-color: var(--pc-teal);
+    border-radius: 8px;
+    color: var(--pc-charcoal);
+    background: var(--pc-teal);
+    font-weight: 500;
+  }
+
+  #pump-cycle-prototype .pc-rail {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 1.1rem;
+    background: color-mix(in srgb, var(--pc-panel) 88%, transparent);
+  }
+
+  #pump-cycle-prototype .pc-step-index {
+    color: var(--pc-orange);
+    font-family: "Space Mono", monospace;
+    letter-spacing: .08em;
+  }
+
+  #pump-cycle-prototype .pc-rail h3 { margin: .35rem 0 .4rem; }
+
+  #pump-cycle-prototype .pc-rail-copy {
+    min-height: 4.5em;
+    margin: 0;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-telemetry {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .65rem;
+    margin: 1rem 0;
+    padding: .8rem 0;
+    border-top: 1px solid var(--pc-line);
+    border-bottom: 1px solid var(--pc-line);
+  }
+
+  #pump-cycle-prototype .pc-telemetry small {
+    display: block;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-telemetry strong {
+    font-family: "Space Mono", monospace;
+    font-weight: 500;
+  }
+
+  #pump-cycle-prototype .pc-feedback-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-bottom: .9rem;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-feedback-strip span {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+  }
+
+  #pump-cycle-prototype .pc-feedback-strip strong {
+    color: var(--pc-teal);
+    font-family: "Space Mono", monospace;
+    font-weight: 500;
+  }
+
+  #pump-cycle-prototype .pc-actions {
+    display: none;
+    gap: .5rem;
+    margin-top: auto;
+  }
+
+  #pump-cycle-prototype[data-view="interactive"] .pc-actions { display: grid; }
+
+  #pump-cycle-prototype .pc-action {
+    padding: .65rem .75rem;
+    border-color: var(--pc-line);
+    border-radius: 8px;
+    color: var(--pc-ivory);
+    background: var(--pc-panel-2);
+    text-align: left;
+  }
+
+  #pump-cycle-prototype .pc-action[data-action="fire"] {
+    border-color: var(--pc-orange);
+    color: var(--pc-orange);
+  }
+
+  #pump-cycle-prototype .pc-action:disabled {
+    cursor: not-allowed;
+    opacity: .38;
+  }
+
+  #pump-cycle-prototype .pc-cycle-list {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .35rem;
+    margin-top: auto;
+  }
+
+  #pump-cycle-prototype[data-view="cycle"] .pc-cycle-list { display: grid; }
+
+  #pump-cycle-prototype .pc-cycle-step {
+    padding: .45rem .35rem;
+    border-color: var(--pc-line);
+    border-radius: 7px;
+    color: var(--pc-muted);
+    background: transparent;
+  }
+
+  #pump-cycle-prototype .pc-cycle-step[aria-pressed="true"] {
+    border-color: var(--pc-orange);
+    color: var(--pc-orange);
+    background: color-mix(in srgb, var(--pc-orange) 10%, transparent);
+  }
+
+  #pump-cycle-prototype .pc-learn {
+    display: none;
+    margin-top: auto;
+  }
+
+  #pump-cycle-prototype[data-view="learn"] .pc-learn { display: block; }
+
+  #pump-cycle-prototype .pc-learn label {
+    display: flex;
+    justify-content: space-between;
+    color: var(--pc-muted);
+  }
+
+  #pump-cycle-prototype .pc-learn input {
+    width: 100%;
+    margin-top: .75rem;
+    accent-color: var(--pc-teal);
+  }
+
+  #pump-cycle-prototype[data-view="learn"] .pc-bolt { filter: drop-shadow(0 9px 0 color-mix(in srgb, var(--pc-teal) 20%, transparent)); }
+  #pump-cycle-prototype[data-view="learn"] .pc-carrier { filter: drop-shadow(0 13px 0 color-mix(in srgb, var(--pc-ivory) 12%, transparent)); }
+
+  @media (max-width: 620px) {
+    #pump-cycle-prototype .pc-device {
+      aspect-ratio: auto;
+      min-height: 0;
+      border-radius: 20px;
+    }
+
+    #pump-cycle-prototype .pc-chrome {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #pump-cycle-prototype .pc-brand { margin-right: auto; }
+    #pump-cycle-prototype .pc-diagram-toggle { margin-left: auto; }
+    #pump-cycle-prototype .pc-safety { display: none; }
+    #pump-cycle-prototype .pc-tabs { order: 3; width: 100%; justify-content: flex-start; overflow: hidden; }
+    #pump-cycle-prototype .pc-tab { flex: 1; padding-inline: .25rem; }
+    #pump-cycle-prototype .pc-body { grid-template-columns: 1fr; height: auto; }
+    #pump-cycle-prototype .pc-stage { min-height: 330px; border-right: 0; border-bottom: 1px solid var(--pc-line); }
+    #pump-cycle-prototype .pc-stage-head { max-width: 82%; }
+    #pump-cycle-prototype .pc-rail { min-height: 245px; }
+    #pump-cycle-prototype .pc-readiness { left: 1rem; right: 1rem; width: auto; }
+    #pump-cycle-prototype .pc-svg-label { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #pump-cycle-prototype * { transition-duration: 0.01ms !important; }
+  }
+</style>
+
+<div id="pump-cycle-prototype" data-view="prepare" data-step="0" data-diagram="schematic">
+  <section class="pc-device" aria-label="手机动作机械原理演示应用原型">
+    <header class="pc-chrome">
+      <div class="pc-brand"><span class="pc-brand-mark" aria-hidden="true"></span>CYCLE / LAB</div>
+      <nav class="pc-tabs" aria-label="原型页面">
+        <button class="pc-tab" type="button" data-view-target="prepare" aria-pressed="true">01 准备</button>
+        <button class="pc-tab" type="button" data-view-target="interactive" aria-pressed="false">02 互动</button>
+        <button class="pc-tab" type="button" data-view-target="cycle" aria-pressed="false">03 循环</button>
+        <button class="pc-tab" type="button" data-view-target="learn" aria-pressed="false">04 学习</button>
+      </nav>
+      <div class="pc-diagram-toggle" aria-label="图形模式">
+        <button class="pc-diagram-button" type="button" data-diagram-target="schematic" aria-pressed="true">示意图</button>
+        <button class="pc-diagram-button" type="button" data-diagram-target="appearance" aria-pressed="false">外观图</button>
+      </div>
+      <div class="pc-safety"><span class="pc-safety-dot" aria-hidden="true"></span>安全演示</div>
+    </header>
+
+    <div class="pc-body">
+      <main class="pc-stage">
+        <div class="pc-stage-head">
+          <p class="pc-kicker" id="pc-kicker">DEVICE MOTION / 01</p>
+          <h2 id="pc-view-title">动作权限</h2>
+          <p id="pc-view-hint">横握手机，轻推轻拉，不需要快速挥动。</p>
+        </div>
+
+        <svg class="pc-mechanism" viewBox="0 0 760 330" role="img" aria-labelledby="pc-svg-title pc-svg-desc">
+          <title id="pc-svg-title">泵动循环抽象剖面</title>
+          <desc id="pc-svg-desc">显示管式弹仓、托弹板、枪机与膛室之间的抽象机械关系，并随步骤改变位置。</desc>
+          <defs>
+            <marker id="pc-arrow-head" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#ff6b2c"></path>
+            </marker>
+          </defs>
+
+          <g class="pc-tilt-grid" aria-hidden="true">
+            <path class="pc-ghost" d="M70 35H700M70 85H700M70 135H700M70 185H700M70 235H700M70 285H700"></path>
+            <path class="pc-ghost" d="M120 20V310M220 20V310M320 20V310M420 20V310M520 20V310M620 20V310"></path>
+          </g>
+
+          <path class="pc-outline" d="M68 115H320L356 84H565L602 104H704V177H581L555 196H376L345 173H68Z"></path>
+          <rect class="pc-magazine" x="84" y="218" width="438" height="38" rx="19"></rect>
+          <path class="pc-ghost" d="M84 274H522"></path>
+          <path class="pc-ghost" d="M583 106V176"></path>
+
+          <g id="pc-mag-shell-1">
+            <rect class="pc-shell-svg" x="360" y="225" width="92" height="24" rx="12"></rect>
+            <rect class="pc-shell-cap" x="438" y="225" width="14" height="24" rx="6"></rect>
+          </g>
+          <g id="pc-mag-shell-2">
+            <rect class="pc-shell-svg" x="256" y="225" width="92" height="24" rx="12"></rect>
+            <rect class="pc-shell-cap" x="334" y="225" width="14" height="24" rx="6"></rect>
+          </g>
+          <g id="pc-active-shell">
+            <rect class="pc-shell-svg" x="472" y="184" width="92" height="24" rx="12"></rect>
+            <rect class="pc-shell-cap" x="550" y="184" width="14" height="24" rx="6"></rect>
+          </g>
+
+          <path id="pc-carrier" class="pc-carrier" d="M420 200L548 191L553 210L425 226Z"></path>
+          <rect id="pc-bolt" class="pc-bolt" x="492" y="116" width="88" height="52" rx="7"></rect>
+          <path class="pc-outline" d="M580 124H692V160H580Z"></path>
+
+          <path id="pc-fire-wave" class="pc-motion-arrow" d="M610 142H682" marker-end="url(#pc-arrow-head)"></path>
+          <path class="pc-motion-arrow" d="M185 294H365" marker-end="url(#pc-arrow-head)"></path>
+          <path class="pc-motion-arrow" d="M363 308H183" marker-end="url(#pc-arrow-head)"></path>
+
+          <path class="pc-label-line" d="M520 108L540 78H606"></path>
+          <text class="pc-svg-label" x="610" y="82">枪机 / BOLT</text>
+          <path class="pc-label-line" d="M444 226L418 286H337"></path>
+          <text class="pc-svg-label" x="264" y="291">托弹板 / CARRIER</text>
+          <path class="pc-label-line" d="M224 218L194 188H118"></path>
+          <text class="pc-svg-label" x="86" y="183">管式弹仓</text>
+          <text class="pc-svg-code" x="86" y="270">MAGAZINE // INERT DEMO ROUNDS</text>
+        </svg>
+
+        <svg class="pc-appearance" viewBox="0 0 760 330" role="img" aria-labelledby="pc-appearance-title pc-appearance-desc">
+          <title id="pc-appearance-title">泵动式结构外观互动图</title>
+          <desc id="pc-appearance-desc">抽象展示枪托、机匣、护木、枪管与抛壳窗。护木随轻拉轻推动作移动，击发时只显示克制的能量反馈。</desc>
+          <defs>
+            <marker id="pc-appearance-arrow-head" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#ff6b2c"></path>
+            </marker>
+            <linearGradient id="pc-walnut-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--pc-walnut)"></stop>
+              <stop offset=".55" style="stop-color:color-mix(in srgb, var(--pc-walnut) 72%, var(--pc-walnut-dark))"></stop>
+              <stop offset="1" style="stop-color:var(--pc-walnut-dark)"></stop>
+            </linearGradient>
+            <linearGradient id="pc-steel-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:color-mix(in srgb, var(--pc-gunmetal) 74%, var(--pc-steel))"></stop>
+              <stop offset=".45" style="stop-color:var(--pc-gunmetal)"></stop>
+              <stop offset="1" style="stop-color:color-mix(in srgb, var(--pc-gunmetal) 74%, var(--pc-charcoal))"></stop>
+            </linearGradient>
+          </defs>
+
+          <g id="pc-appearance-gun" class="pc-appearance-gun">
+            <path class="pc-appearance-wood" d="M58 130L237 111L300 127L310 182L263 200L184 196L138 230L72 223L116 179L58 170Z"></path>
+            <path class="pc-appearance-rubber" d="M50 132L66 128L66 222L52 219Z"></path>
+            <path class="pc-appearance-wood" d="M116 179L180 191L148 258L93 254Z"></path>
+            <rect class="pc-appearance-steel" x="286" y="116" width="183" height="82" rx="8"></rect>
+            <path class="pc-appearance-steel" d="M444 125H716L723 131V147H444Z"></path>
+            <path class="pc-appearance-grip-line" d="M461 121H702M478 116H692"></path>
+            <path class="pc-appearance-steel" d="M455 166H678V183H455Z"></path>
+            <circle class="pc-appearance-rubber" cx="680" cy="174.5" r="9"></circle>
+            <path class="pc-appearance-steel" d="M325 195L391 195L378 269L341 269L348 215Z"></path>
+            <path class="pc-appearance-grip-line" d="M337 211L384 211M335 224L382 224M333 237L380 237M331 250L378 250"></path>
+            <path class="pc-appearance-grip-line" d="M78 151C125 138 174 131 229 127M82 162C134 148 183 142 238 139M93 174C142 162 188 157 242 155"></path>
+            <path class="pc-appearance-steel" d="M351 197Q371 222 395 197" style="fill:none"></path>
+            <path class="pc-appearance-steel" d="M365 196V219" style="fill:none"></path>
+
+            <rect class="pc-appearance-port" x="382" y="130" width="66" height="34" rx="4"></rect>
+            <rect id="pc-appearance-bolt" class="pc-appearance-bolt" x="390" y="136" width="49" height="22" rx="3"></rect>
+
+            <g id="pc-appearance-pump" class="pc-appearance-pump">
+              <path class="pc-appearance-wood" d="M472 157H581L604 174L581 194H472L451 180Z"></path>
+              <path class="pc-appearance-grip-line" d="M476 165C505 160 543 160 574 165M469 176C510 171 555 171 590 176M468 187C507 183 548 183 581 188"></path>
+            </g>
+
+            <g id="pc-appearance-shell" class="pc-appearance-shell">
+              <rect class="pc-shell-svg" x="407" y="105" width="54" height="18" rx="9"></rect>
+              <rect class="pc-shell-cap" x="450" y="105" width="11" height="18" rx="5"></rect>
+            </g>
+
+            <g id="pc-appearance-pulse">
+              <circle class="pc-appearance-pulse" cx="720" cy="137" r="16"></circle>
+              <circle class="pc-appearance-pulse" cx="720" cy="137" r="29"></circle>
+            </g>
+          </g>
+
+          <path class="pc-motion-arrow" d="M455 287H600" marker-end="url(#pc-appearance-arrow-head)"></path>
+          <path class="pc-motion-arrow" d="M598 303H453" marker-end="url(#pc-appearance-arrow-head)"></path>
+
+          <g class="pc-appearance-labels">
+            <path class="pc-label-line" d="M154 122L133 83H74"></path>
+            <text class="pc-svg-label" x="72" y="77">枪托 / STOCK</text>
+            <path class="pc-label-line" d="M342 117L342 82H302"></path>
+            <text class="pc-svg-label" x="245" y="77">机匣 / RECEIVER</text>
+            <path class="pc-label-line" d="M526 157L555 95H615"></path>
+            <text class="pc-svg-label" x="620" y="100">护木 / FORE-END</text>
+            <path class="pc-label-line" d="M653 126L675 88H718"></path>
+            <text class="pc-svg-label" x="676" y="82">枪管</text>
+          </g>
+          <text class="pc-svg-code" x="70" y="288">EXTERIOR VIEW // NON-BRANDED EDUCATIONAL MODEL</text>
+        </svg>
+
+        <aside class="pc-readiness" aria-live="polite">
+          <h3 id="pc-ready-title">允许动作感应</h3>
+          <p id="pc-ready-copy">浏览器只读取方向与加速度，不记录位置。桌面端可用按钮代替。</p>
+          <button class="pc-enable" type="button" id="pc-enable-motion">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 9-3 3 3 3"></path><path d="m9 5 3-3 3 3"></path><path d="m15 19-3 3-3-3"></path><path d="m19 9 3 3-3 3"></path><path d="M2 12h20"></path><path d="M12 2v20"></path></svg><span>启用感应</span>
+          </button>
+        </aside>
+      </main>
+
+      <aside class="pc-rail" aria-live="polite">
+        <span class="pc-step-index" id="pc-step-index">STATE 00 / SAFE</span>
+        <h3 id="pc-step-title">准备传感器</h3>
+        <p class="pc-rail-copy" id="pc-step-copy">先建立“横握”为零点，之后只识别轻柔的前后动作。</p>
+
+        <div class="pc-telemetry">
+          <div><small>前后动作</small><strong id="pc-motion-value">0.00 g</strong></div>
+          <div><small>倾斜角</small><strong id="pc-tilt-value">0°</strong></div>
+        </div>
+
+        <div class="pc-feedback-strip">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8 2 12l4 4"></path><path d="M2 12h20"></path></svg>动作击发 <strong id="pc-trigger-state">待闭锁</strong></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></svg>声场 <strong>临场</strong></span>
+        </div>
+
+        <div class="pc-actions" aria-label="桌面演示控制">
+          <button class="pc-action" type="button" data-action="pull">轻拉 · 解锁 / 退壳</button>
+          <button class="pc-action" type="button" data-action="push">轻推 · 抬弹 / 闭锁</button>
+          <button class="pc-action" type="button" data-action="fire" disabled>模拟向后轻顿 · 击发</button>
+        </div>
+
+        <div class="pc-cycle-list" aria-label="循环步骤">
+          <button class="pc-cycle-step" type="button" data-step-target="0" aria-pressed="true">01 供弹</button>
+          <button class="pc-cycle-step" type="button" data-step-target="1" aria-pressed="false">02 抬弹</button>
+          <button class="pc-cycle-step" type="button" data-step-target="2" aria-pressed="false">03 闭锁</button>
+          <button class="pc-cycle-step" type="button" data-step-target="3" aria-pressed="false">04 击发</button>
+          <button class="pc-cycle-step" type="button" data-step-target="4" aria-pressed="false">05 后坐</button>
+          <button class="pc-cycle-step" type="button" data-step-target="5" aria-pressed="false">06 退壳</button>
+        </div>
+
+        <div class="pc-learn">
+          <label for="pc-tilt-range"><span id="pc-learn-label">左右倾斜 · 分离结构层</span><strong id="pc-layer-value">0°</strong></label>
+          <input id="pc-tilt-range" type="range" min="-18" max="18" value="0" aria-label="模拟手机左右倾斜">
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script>
+  (() => {
+    const root = document.getElementById("pump-cycle-prototype");
+    if (!root) return;
+
+    const viewData = {
+      prepare: {
+        kicker: "DEVICE MOTION / 01",
+        title: "动作权限",
+        hint: "横握手机，轻推轻拉，不需要快速挥动。",
+        index: "STATE 00 / SAFE",
+        stepTitle: "准备传感器",
+        copy: "先建立“横握”为零点，之后只识别轻柔的前后动作。"
+      },
+      interactive: {
+        kicker: "LIVE CUTAWAY / 02",
+        title: "互动剖面",
+        hint: "轻拉轻推驱动泵动循环，闭锁后向后轻顿触发击发。",
+        index: "STATE 01 / INTERACTIVE",
+        stepTitle: "轻拉开始循环",
+        copy: "向身体方向轻拉：枪机后移，退壳并释放下一枚惰性示意弹。"
+      },
+      cycle: {
+        kicker: "MECHANISM CYCLE / 03",
+        title: "六步循环",
+        hint: "点击步骤，逐段观察部件之间的因果关系。",
+        index: "STEP 01 / FEED",
+        stepTitle: "供弹",
+        copy: "弹仓簧将下一枚示意弹推向托弹板。"
+      },
+      learn: {
+        kicker: "EXPLODED LEARNING / 04",
+        title: "自由学习",
+        hint: "左右倾斜手机，分离结构层并查看部件名称。",
+        index: "LAYER VIEW / TILT",
+        stepTitle: "倾斜查看层次",
+        copy: "结构只作原理抽象：弹仓、托弹板、枪机与膛室保持清晰关联。"
+      }
+    };
+
+    const appearanceViewData = {
+      prepare: {
+        kicker: "EXTERIOR MOTION / 01",
+        title: "外观准备",
+        hint: "先认识手机动作对应的外部部件，再进入互动。"
+      },
+      interactive: {
+        kicker: "LIVE EXTERIOR / 02",
+        title: "真实外观互动",
+        hint: "轻拉轻推观察护木和抛壳窗，向后轻顿触发临场声效、振动与后坐。"
+      },
+      cycle: {
+        kicker: "EXTERIOR CYCLE / 03",
+        title: "外观循环",
+        hint: "点击六个步骤，对照外部可见的护木、枪机与抛壳动作。"
+      },
+      learn: {
+        kicker: "EXTERIOR PARTS / 04",
+        title: "外观认识",
+        hint: "左右倾斜查看外部轮廓与部件标注。"
+      }
+    };
+
+    const cycleData = [
+      ["STEP 01 / FEED", "供弹", "弹仓簧将下一枚示意弹推向托弹板。"],
+      ["STEP 02 / LIFT", "抬弹", "托弹板上扬，把示意弹送到膛室轴线上。"],
+      ["STEP 03 / LOCK", "闭锁", "枪机前移，将示意弹送入膛室并完成闭锁。"],
+      ["STEP 04 / FIRE", "击发", "闭锁后向后轻顿越过阈值，触发击发与声场。"],
+      ["STEP 05 / RECOIL", "后坐", "临场声效、双段振动与短促后坐动画同步反馈。"],
+      ["STEP 06 / EJECT", "退壳", "轻拉护木，枪机后移并把空壳抽出；循环回到供弹。"]
+    ];
+
+    const viewTitle = root.querySelector("#pc-view-title");
+    const viewHint = root.querySelector("#pc-view-hint");
+    const kicker = root.querySelector("#pc-kicker");
+    const stepIndex = root.querySelector("#pc-step-index");
+    const stepTitle = root.querySelector("#pc-step-title");
+    const stepCopy = root.querySelector("#pc-step-copy");
+    const motionValue = root.querySelector("#pc-motion-value");
+    const tiltValue = root.querySelector("#pc-tilt-value");
+    const activeShell = root.querySelector("#pc-active-shell");
+    const bolt = root.querySelector("#pc-bolt");
+    const carrier = root.querySelector("#pc-carrier");
+    const fireWave = root.querySelector("#pc-fire-wave");
+    const appearanceGun = root.querySelector("#pc-appearance-gun");
+    const appearancePump = root.querySelector("#pc-appearance-pump");
+    const appearanceBolt = root.querySelector("#pc-appearance-bolt");
+    const appearanceShell = root.querySelector("#pc-appearance-shell");
+    const appearancePulse = root.querySelectorAll("#pc-appearance-pulse .pc-appearance-pulse");
+    const learnLabel = root.querySelector("#pc-learn-label");
+    const fireButton = root.querySelector('[data-action="fire"]');
+    const triggerState = root.querySelector("#pc-trigger-state");
+    let currentView = "prepare";
+    let currentDiagram = "schematic";
+    let currentStep = 0;
+    let interactionState = 0;
+    let audioContext = null;
+    let lastMotionFireAt = Number.NEGATIVE_INFINITY;
+
+    const applyMechanism = (step) => {
+      currentStep = step;
+      const shellTransforms = [
+        "translate(-22px, 38px)",
+        "translate(-34px, -28px) rotate(-8deg)",
+        "translate(96px, -67px)",
+        "translate(96px, -67px)",
+        "translate(74px, -67px)",
+        "translate(148px, -116px) rotate(-24deg)"
+      ];
+      activeShell.style.transform = shellTransforms[step];
+      activeShell.style.opacity = step === 5 ? ".45" : "1";
+      bolt.style.transform = step === 0 || step === 1 || step === 5 ? "translateX(-56px)" : "translateX(0)";
+      carrier.style.transform = step === 1 ? "rotate(-18deg) translateY(-22px)" : "rotate(0) translateY(0)";
+      fireWave.style.opacity = step === 3 || step === 4 ? "1" : "0";
+      const pumpPositions = [-48, -24, 0, 0, 0, -52];
+      appearancePump.style.transform = `translateX(${pumpPositions[step]}px)`;
+      appearanceBolt.style.transform = step === 0 || step === 1 || step === 5 ? "translateX(-24px)" : "translateX(0)";
+      appearanceShell.style.opacity = step === 5 ? "1" : "0";
+      appearanceShell.style.transform = step === 5 ? "translate(28px, -34px) rotate(-22deg)" : "translate(0) rotate(0)";
+      appearanceGun.style.transform = step === 3 || step === 4 ? "translateX(-9px)" : "translateX(0)";
+      appearancePulse.forEach((pulse) => {
+        pulse.style.opacity = step === 3 || step === 4 ? "1" : "0";
+      });
+      root.dataset.step = String(step);
+    };
+
+    const playImmersiveShot = () => {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === "suspended") audioContext.resume();
+
+      const now = audioContext.currentTime;
+      const duration = .72;
+      const frameCount = Math.floor(audioContext.sampleRate * duration);
+      const buffer = audioContext.createBuffer(1, frameCount, audioContext.sampleRate);
+      const channel = buffer.getChannelData(0);
+      for (let index = 0; index < frameCount; index += 1) {
+        const decay = Math.pow(1 - index / frameCount, 3.1);
+        channel[index] = (Math.random() * 2 - 1) * decay;
+      }
+
+      const noise = audioContext.createBufferSource();
+      const filter = audioContext.createBiquadFilter();
+      const noiseGain = audioContext.createGain();
+      noise.buffer = buffer;
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2200, now);
+      filter.frequency.exponentialRampToValueAtTime(280, now + duration);
+      noiseGain.gain.setValueAtTime(.0001, now);
+      noiseGain.gain.exponentialRampToValueAtTime(.72, now + .008);
+      noiseGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      noise.connect(filter).connect(noiseGain).connect(audioContext.destination);
+
+      const thump = audioContext.createOscillator();
+      const thumpGain = audioContext.createGain();
+      thump.type = "sine";
+      thump.frequency.setValueAtTime(96, now);
+      thump.frequency.exponentialRampToValueAtTime(42, now + .24);
+      thumpGain.gain.setValueAtTime(.52, now);
+      thumpGain.gain.exponentialRampToValueAtTime(.0001, now + .32);
+      thump.connect(thumpGain).connect(audioContext.destination);
+      noise.start(now);
+      thump.start(now);
+      thump.stop(now + .34);
+    };
+
+    const performFire = (source) => {
+      if (interactionState !== 2 || fireButton.disabled) return;
+      applyMechanism(3);
+      stepIndex.textContent = source === "motion" ? "MOTION / FIRE" : "MOTION DEMO / FIRE";
+      stepTitle.textContent = "动作击发 · 临场反馈";
+      stepCopy.textContent = "向后轻顿越过阈值后，声效、振动和短促后坐动画同步触发。";
+      motionValue.textContent = "−0.86 g";
+      triggerState.textContent = "已击发";
+      fireButton.disabled = true;
+      interactionState = 0;
+      playImmersiveShot();
+      if ("vibrate" in navigator) navigator.vibrate([45, 25, 90]);
+    };
+
+    const handleDeviceMotion = (event) => {
+      const acceleration = event.acceleration;
+      if (!acceleration) return;
+      const x = acceleration.x || 0;
+      const y = acceleration.y || 0;
+      const z = acceleration.z || 0;
+      const magnitude = Math.sqrt(x * x + y * y + z * z);
+      const axialG = x / 9.80665;
+      motionValue.textContent = `${axialG >= 0 ? "+" : ""}${axialG.toFixed(2)} g`;
+      const now = performance.now();
+      if (currentView === "interactive" && interactionState === 2 && x <= -5.2 && magnitude >= 5.2 && now - lastMotionFireAt > 1200) {
+        lastMotionFireAt = now;
+        performFire("motion");
+      }
+    };
+
+    const applyViewCopy = () => {
+      const base = viewData[currentView];
+      const data = currentDiagram === "appearance"
+        ? { ...base, ...appearanceViewData[currentView] }
+        : base;
+      kicker.textContent = data.kicker;
+      viewTitle.textContent = data.title;
+      viewHint.textContent = data.hint;
+      stepIndex.textContent = data.index;
+      stepTitle.textContent = data.stepTitle;
+      stepCopy.textContent = data.copy;
+    };
+
+    const applyView = (view) => {
+      currentView = view;
+      root.dataset.view = view;
+      applyViewCopy();
+      root.querySelectorAll("[data-view-target]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.viewTarget === view));
+      });
+      if (view === "cycle") applyCycleStep(currentStep);
+      else if (view === "interactive") applyMechanism(interactionState === 2 ? 2 : 0);
+      else applyMechanism(view === "learn" ? 2 : 0);
+    };
+
+    const applyDiagram = (diagram) => {
+      currentDiagram = diagram;
+      root.dataset.diagram = diagram;
+      root.querySelectorAll("[data-diagram-target]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.diagramTarget === diagram));
+      });
+      learnLabel.textContent = diagram === "appearance"
+        ? "左右倾斜 · 查看外部结构"
+        : "左右倾斜 · 分离结构层";
+      applyViewCopy();
+      if (currentView === "cycle") applyCycleStep(currentStep);
+      else applyMechanism(currentStep);
+    };
+
+    const applyCycleStep = (step) => {
+      applyMechanism(step);
+      const data = cycleData[step];
+      stepIndex.textContent = data[0];
+      stepTitle.textContent = data[1];
+      stepCopy.textContent = data[2];
+      root.querySelectorAll("[data-step-target]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.stepTarget) === step));
+      });
+    };
+
+    root.querySelectorAll("[data-view-target]").forEach((button) => {
+      button.addEventListener("click", () => applyView(button.dataset.viewTarget));
+    });
+
+    root.querySelectorAll("[data-diagram-target]").forEach((button) => {
+      button.addEventListener("click", () => applyDiagram(button.dataset.diagramTarget));
+    });
+
+    root.querySelectorAll("[data-step-target]").forEach((button) => {
+      button.addEventListener("click", () => applyCycleStep(Number(button.dataset.stepTarget)));
+    });
+
+    root.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.action;
+        if (action === "pull") {
+          interactionState = 1;
+          applyMechanism(5);
+          stepIndex.textContent = "GESTURE / PULL";
+          stepTitle.textContent = "轻拉 · 解锁与退壳";
+          stepCopy.textContent = "枪机后移，空壳退出，同时下一枚示意弹释放到托弹板。";
+          motionValue.textContent = "−0.42 g";
+          triggerState.textContent = "待闭锁";
+          fireButton.disabled = true;
+        } else if (action === "push") {
+          interactionState = 2;
+          applyMechanism(2);
+          stepIndex.textContent = "GESTURE / PUSH";
+          stepTitle.textContent = "轻推 · 抬弹与闭锁";
+          stepCopy.textContent = "托弹板抬升，枪机前移并闭锁；现在向后轻顿可触发击发。";
+          motionValue.textContent = "+0.38 g";
+          triggerState.textContent = "已待发";
+          fireButton.disabled = false;
+        } else if (action === "fire") {
+          performFire("demo");
+        }
+      });
+    });
+
+    const enableButton = root.querySelector("#pc-enable-motion");
+    enableButton.addEventListener("click", async () => {
+      const canUseLiveMotion = window.self === window.top;
+      let motionGranted = canUseLiveMotion;
+      try {
+        if (canUseLiveMotion && typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+          motionGranted = await DeviceMotionEvent.requestPermission() === "granted";
+        }
+      } catch (error) {
+        motionGranted = false;
+      }
+      if (motionGranted && canUseLiveMotion) window.addEventListener("devicemotion", handleDeviceMotion, { passive: true });
+      enableButton.querySelector("span").textContent = motionGranted ? "感应已启用" : "原型模拟已启用";
+      root.querySelector("#pc-ready-title").textContent = motionGranted ? "动作击发已校准" : "动作模拟已准备";
+      root.querySelector("#pc-ready-copy").textContent = motionGranted
+        ? "闭锁后，向后轻顿超过阈值即可同步触发声效、振动与后坐。"
+        : "当前预览使用右侧按钮模拟；独立网页会启用真实手机传感器。";
+      motionValue.textContent = "0.02 g";
+      tiltValue.textContent = "1°";
+      window.setTimeout(() => applyView("interactive"), 650);
+    });
+
+    const tiltRange = root.querySelector("#pc-tilt-range");
+    const layerValue = root.querySelector("#pc-layer-value");
+    tiltRange.addEventListener("input", () => {
+      const tilt = Number(tiltRange.value);
+      layerValue.textContent = `${tilt}°`;
+      tiltValue.textContent = `${tilt}°`;
+      bolt.style.transform = `translate(${tilt * .8}px, ${Math.abs(tilt) * -.35}px)`;
+      carrier.style.transform = `translate(${tilt * -.55}px, ${Math.abs(tilt) * .45}px)`;
+      activeShell.style.transform = `translate(${96 + tilt * .35}px, ${-67 + Math.abs(tilt) * .3}px)`;
+      if (currentDiagram === "appearance") {
+        appearanceGun.style.transform = `translateX(${tilt * .28}px) rotate(${tilt * .05}deg)`;
+      }
+    });
+
+    applyDiagram("schematic");
+    applyView("prepare");
+  })();
+</script>
+<p class="site-note">非品牌化教育模型 · 不包含操作指导 · 请轻柔移动手机并留意周围空间</p>
+</main>
+</body>
+</html>
