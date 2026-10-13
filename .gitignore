@@ -1,0 +1,7 @@
+cloudflare-deployment/assets/
+cloudflare-deployment/.wrangler/
+node_modules/
+.env
+.env.*
+.dev.vars
+.dev.vars.*
