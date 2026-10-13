@@ -1,0 +1,20 @@
+{
+  "name": "shotgun-motion-lab",
+  "compatibility_date": "2026-08-05",
+  "routes": [
+    {
+      "pattern": "alading.org/shotgun",
+      "zone_name": "alading.org"
+    },
+    {
+      "pattern": "alading.org/shotgun/*",
+      "zone_name": "alading.org"
+    }
+  ],
+  "assets": {
+    "directory": "./assets",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "workers_dev": false
+}
