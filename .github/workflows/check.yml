@@ -1,0 +1,25 @@
+name: bilingual game checks
+on:
+  push:
+    branches: [main, codex/shotgun-interactive-learning]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: node --test --test-isolation=none tests/locales.test.mjs
+      - run: python -m pip install -r tests/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: python -m unittest discover -s tests -p '*_test.py' -v
+      - run: node cloudflare-deployment/prepare.mjs
+      - run: npx --yes wrangler@4.92.0 deploy --dry-run --config cloudflare-deployment/wrangler.jsonc
