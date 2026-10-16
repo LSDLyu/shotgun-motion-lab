@@ -1,6 +1,8 @@
 cloudflare-deployment/assets/
 cloudflare-deployment/.wrangler/
 node_modules/
+__pycache__/
+*.pyc
 .env
 .env.*
 .dev.vars

@@ -1,6 +1,9 @@
-import { copyFile, mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { renderGame } from '../scripts/render-game.mjs';
 
-const assets = new URL('./assets/shotgun/', import.meta.url);
-await mkdir(assets, { recursive: true });
-await copyFile(new URL('../index.html', import.meta.url), new URL('index.html', assets));
-console.log('Prepared Cloudflare assets from the canonical index.html.');
+for (const locale of ['zh', 'en']) {
+  const assets = new URL('./assets/shotgun/' + (locale === 'en' ? 'en/' : ''), import.meta.url);
+  await mkdir(assets, { recursive: true });
+  await writeFile(new URL('index.html', assets), await renderGame({ locale, target: 'standalone' }));
+}
+console.log('Prepared both Cloudflare locales from the canonical model and translations.');
