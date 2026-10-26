@@ -148,7 +148,7 @@ body[data-reduced="true"] .model.shot .assembly,body[data-reduced="true"] .model
 <nav class="site-links" aria-label="网站导航"><a id="games-link" href="https://edu.alading.org/games/">学习游戏</a><a id="language-link" href="https://edu.alading.org/en/games/shotgun/" lang="en" hreflang="en">English</a></nav>
 </header>
 <section class="intro">
-<div><p class="eyebrow">OBSERVE · MOVE · UNDERSTAND</p><h1>看见动作背后的结构。</h1><p>从木质外观到内部剖面，用一次缓慢的循环，认识部件之间的联系。</p></div>
+<div><p class="eyebrow">OBSERVE · MOVE · UNDERSTAND</p><h1>看见动作背后的结构。</h1><p>从木质外观到内部剖面，观看慢速循环演示，了解部件之间的联系。</p></div>
 <nav class="mode-tabs" aria-label="体验模式">
 <button type="button" data-mode="interactive" aria-pressed="true">01 互动体验</button>
 <button type="button" data-mode="cycle" aria-pressed="false">02 循环演示</button>
@@ -220,12 +220,12 @@ body[data-reduced="true"] .model.shot .assembly,body[data-reduced="true"] .model
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const phases = [
- {title:'供弹',code:'FEED',copy:'在透明外壳下观察示意弹的位置。管式弹仓、托弹板与机匣共同构成这一段的结构关系。',parts:['magazine','carrier'],hint:'轻拉开始；也可点击下方步骤自由观察。'},
+ {title:'供弹',code:'FEED',copy:'在透明外壳下观察示意弹的位置。留意管式弹仓、托弹板与机匣之间的位置关系。',parts:['magazine','carrier'],hint:'轻拉开始；也可点击下方步骤自由观察。'},
  {title:'抬弹',code:'LIFT',copy:'托弹板的角度发生变化，让示意弹从下方移向上方的轴线。留意剖面中两层空间的联系。',parts:['carrier','chamber'],hint:'观察托弹板与示意弹的联动。'},
  {title:'闭锁',code:'LOCK',copy:'模型中的枪机向前移动，示意弹进入膛室区域。对照外观图，可以看到内部运动与外部窗口的对应。',parts:['bolt','chamber'],hint:'模型已就位，可以触发一次反馈演示。'},
  {title:'击发',code:'RESPONSE',copy:'这一帧用短暂的光、声音与位移表示能量反馈。它是浏览器中的视听示意，不模拟内部击发装置。',parts:['chamber','barrel'],hint:'反馈只出现一次，随后自动结束。'},
  {title:'后坐',code:'RECOIL',copy:'短促位移后，外观模型回到原位。内部剖面保留当前阶段，便于停下来观察。',parts:['stock','receiver'],hint:'本次反馈已结束，可以轻拉开始下一轮。'},
- {title:'退壳',code:'EJECT',copy:'观察枪机后移与窗口处的示意弹轨迹。运动部件被着色强调，其他结构保持半透明。',parts:['bolt','pump'],hint:'随后回到供弹阶段。'}
+ {title:'退壳',code:'EJECT',copy:'观察枪机后移与窗口处的示意弹轨迹。运动部件用颜色标出，其他结构保持半透明。',parts:['bolt','pump'],hint:'随后回到供弹阶段。'}
 ];
 const parts = {
  stock:{name:'枪托',desc:'外部支撑结构。木纹和表面明暗帮助辨认外形；演示中的短暂位移会带动整个模型。'},
